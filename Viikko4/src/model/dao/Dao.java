@@ -133,5 +133,51 @@ public class Dao {
 		}				
 		return paluuArvo;
 	}	
+	public Myynti etsiAsiakas(String id) {
+		Myynti myynti = null;
+		sql = "SELECT * FROM asiakkaat WHERE asiakas_id=?";       
+		try {
+			con=yhdista();
+			if(con!=null){ 
+				stmtPrep = con.prepareStatement(sql); 
+				stmtPrep.setString(1, id);
+        		rs = stmtPrep.executeQuery();  
+        		if(rs.isBeforeFirst()){ //jos kysely tuotti dataa, eli ID on käytössä
+        			rs.next();
+        			myynti = new Myynti();        			
+					myynti.setAsiakas_id(rs.getInt(1));
+					myynti.setEtunimi(rs.getString(2));
+					myynti.setSukunimi(rs.getString(3));
+					myynti.setPuhelin(rs.getString(4));
+					myynti.setSposti(rs.getString(5));       			      			
+				}        		
+			}	
+			con.close();  
+		} catch (Exception e) {
+			e.printStackTrace();
+		}		
+		return myynti;		
+	}
+	public boolean muutaAsiakas(Myynti myynti){
+		boolean paluuArvo=true;
+		sql="UPDATE asiakkaat SET asiakas_id=?, etunimi=?, sukunimi=?, puhelin=?, sposti=? WHERE asiakas_id=?";						  
+		try {
+			con = yhdista();
+			stmtPrep=con.prepareStatement(sql); 
+			stmtPrep.setInt(1, myynti.getAsiakas_id());
+			stmtPrep.setString(2, myynti.getEtunimi().replaceAll("\\<.*?\\>", ""));
+			stmtPrep.setString(3, myynti.getSukunimi().replaceAll("\\<.*?\\>", ""));
+			stmtPrep.setString(4, myynti.getPuhelin().replaceAll("\\<.*?\\>", ""));
+			stmtPrep.setString(5, myynti.getSposti().replaceAll("\\<.*?\\>", ""));
+			stmtPrep.setInt(6, myynti.getAsiakas_id());
+			stmtPrep.executeUpdate();
+	        con.close();
+		} catch (Exception e) {				
+			e.printStackTrace();
+			paluuArvo=false;
+		}				
+		return paluuArvo;
+	}
+
 
 }

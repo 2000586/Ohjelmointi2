@@ -39,16 +39,38 @@ public class Asiakkaat extends HttpServlet {
 
 		String pathInfo = request.getPathInfo();
 		System.out.println("Path: " + pathInfo);
-		String hakusana = pathInfo.replace("/", "");
-
+		String strJSON="";
 		Dao dao = new Dao();
-		ArrayList<Myynti> asiakkaat = dao.listaaKaikki(hakusana);
-		System.out.println(asiakkaat);
-		String strJSON = new JSONObject().put("asiakkaat", asiakkaat).toString();
+		ArrayList<Myynti> asiakkaat;
+		if(pathInfo==null) {
+			asiakkaat = dao.listaaKaikki();
+			strJSON = new JSONObject().put("asiakkaat", asiakkaat).toString();
+		
+		}else if(pathInfo.indexOf("hae1")!=-1) {		//polussa on sana "haeyksi", eli haetaan yhden auton tiedot
+			String id = pathInfo.replace("/hae1/", ""); //poistetaan polusta "/haeyksi/", jäljelle jää rekno		
+			Myynti myynti = dao.etsiAsiakas(id);
+			if(myynti==null) {
+				strJSON = "{}";
+			}else {
+			JSONObject JSON = new JSONObject();
+			JSON.put("asiakas_id", myynti.getAsiakas_id());
+			JSON.put("etunimi", myynti.getEtunimi());
+			JSON.put("sukunimi", myynti.getSukunimi());
+			JSON.put("puhelin", myynti.getPuhelin());
+			JSON.put("sposti", myynti.getSposti());	
+			strJSON = JSON.toString();
+			}
+		}else{ //Haetaan hakusanan mukaiset autot
+			String hakusana = pathInfo.replace("/", "");
+			asiakkaat = dao.listaaKaikki(hakusana);
+			strJSON = new JSONObject().put("asiakkaat", asiakkaat).toString();
+		}	
 		response.setContentType("application/json");
 		PrintWriter out = response.getWriter();
-		out.println(strJSON);
+		out.println(strJSON);		
 	}
+
+
 
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
@@ -80,7 +102,27 @@ public class Asiakkaat extends HttpServlet {
 	protected void doPut(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		System.out.println("Asiakkaat.doPut()");
+		JSONObject jsonObj = new JsonStrToObj().convert(request); //Muutetaan kutsun mukana tuleva json-string json-objektiksi			
+		
+		Myynti myynti = new Myynti();
+		myynti.setAsiakas_id(Integer.parseInt(jsonObj.getString("asiakas_id")));
+		myynti.setEtunimi(jsonObj.getString("etunimi"));
+		myynti.setSukunimi(jsonObj.getString("sukunimi"));
+		myynti.setPuhelin(jsonObj.getString("puhelin"));
+		myynti.setSposti(jsonObj.getString("sposti"));
+		response.setContentType("application/json");
+		PrintWriter out = response.getWriter();
+		Dao dao = new Dao();			
+		if(dao.muutaAsiakas(myynti)){ //metodi palauttaa true/false
+			out.println("{\"response\":1}");  
+		}else{
+			out.println("{\"response\":0}");  
+		}		
 	}
+
+		
+		
+	
 
 	/**
 	 * @see HttpServlet#doDelete(HttpServletRequest, HttpServletResponse)

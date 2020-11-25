@@ -40,9 +40,12 @@ input {
 	background-color: darkgrey;
 }
 
-.poista{
+.poista, .muokkaa{
 cursor: pointer;
 font-weight: bold;
+color: black;
+text-decoration:none;
+font-family: Arial, Helvetica, sans-serif;
 }
 
 .right {
@@ -55,14 +58,14 @@ font-weight: bold;
 	<table id="listaus">
 		<thead>
 			<tr>
-				<th colspan="6" class="right"><span id="uusiAsiakas">
+				<th colspan="7" class="right"><span id="uusiAsiakas">
 						Lis‰‰ uusi asiakas</span></th>
 			</tr>
 			<tr>
 
 
 				<th colspan="2" class="right">Hakusana:</th>
-				<th colspan="3"><input size="35" type="text" id="hakusana"></th>
+				<th colspan="3"><input size="40" type="text" id="hakusana"></th>
 				<th><input type="button" value="HAKU" id="hakunappi"></th>
 			</tr>
 			<tr>
@@ -71,6 +74,7 @@ font-weight: bold;
 				<th>Sukunimi</th>
 				<th>Puhelin</th>
 				<th>Sposti</th>
+				<th> </th>
 				<th> </th>
 			</tr>
 		</thead>
@@ -114,6 +118,7 @@ font-weight: bold;
 						htmlStr += "<td>" + field.sukunimi + "</td>";
 						htmlStr += "<td>" + field.puhelin + "</td>";
 						htmlStr += "<td>" + field.sposti + "</td>";							
+						htmlStr+="<td><a class='muokkaa' href='muutaasiakas.jsp?id="+field.asiakas_id+"'>Muuta</span></td>";
 						htmlStr+="<td><span class='poista' onclick=poista('"+field.asiakas_id+"','"+field.etunimi+"','"+field.sukunimi+"')>Poista</span></td>";
 						htmlStr += "</tr>";
 						$("#listaus tbody").append(htmlStr);
